@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CodeReviewAI | Authentication</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="auth-page">
+      <section class="auth-hero">
+        <div class="brand">
+          <span class="brand-mark">CR</span>
+          <div>
+            <strong>CodeReviewAI</strong>
+            <small>Secure developer intelligence</small>
+          </div>
+        </div>
+        <h1>Authenticate to continue</h1>
+        <p>Login or create an account to access the automated code review dashboard.</p>
+      </section>
+
+      <section class="auth-card">
+        <div class="auth-tabs">
+          <button id="showLogin" class="tab active" type="button">Login</button>
+          <button id="showRegister" class="tab" type="button">Register</button>
+        </div>
+
+        <form id="loginForm" class="auth-form">
+          <h2>Login</h2>
+          <label>
+            Email
+            <input id="loginEmail" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            Password
+            <input id="loginPassword" type="password" autocomplete="current-password" required />
+          </label>
+          <button type="submit">Login</button>
+        </form>
+
+        <form id="registerForm" class="auth-form hidden">
+          <h2>Register</h2>
+          <label>
+            Full name
+            <input id="registerName" autocomplete="name" required minlength="2" />
+          </label>
+          <label>
+            Email
+            <input id="registerEmail" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            Password
+            <input id="registerPassword" type="password" autocomplete="new-password" required minlength="8" />
+          </label>
+          <button type="submit">Create account</button>
+        </form>
+
+        <p id="authStatus" class="auth-status" role="status"></p>
+      </section>
+    </main>
+
+    <script src="/static/auth.js"></script>
+  </body>
+</html>

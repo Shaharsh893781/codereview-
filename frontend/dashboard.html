@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CodeReviewAI | Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="dashboard-page">
+      <header class="dashboard-header">
+        <div class="brand">
+          <span class="brand-mark">CR</span>
+          <div>
+            <strong>CodeReviewAI</strong>
+            <small>Authenticated workspace</small>
+          </div>
+        </div>
+        <button id="logoutBtn" class="ghost" type="button">Logout</button>
+      </header>
+
+      <section class="dashboard-card">
+        <h1>DASHBOARD</h1>
+        <p>Run AI-powered code review scans from your authenticated workspace.</p>
+      </section>
+
+      <section class="review-dashboard">
+        <section class="metrics-grid">
+          <article><span>Total Issues</span><strong id="totalIssues">0</strong></article>
+          <article><span>Quality Score</span><strong id="qualityScore">--</strong></article>
+          <article><span>Maintainability</span><strong id="maintainabilityScore">--</strong></article>
+          <article><span>Complexity</span><strong id="complexityScore">--</strong></article>
+        </section>
+
+        <section class="review-layout">
+          <div class="editor-panel">
+            <div class="panel-title">
+              <div>
+                <h2>Code Review Application</h2>
+                <p>Paste Python code or drop a file, then run the analyzer.</p>
+              </div>
+              <button id="analyzeBtn" type="button">Analyze Code</button>
+            </div>
+            <div id="dropZone" class="drop-zone">Drop a Python file here</div>
+            <textarea id="codeEditor" spellcheck="false">def BadFunctionName(items, threshold, mode, user, debug, retries):
+    result = []
+    unused_value = 42
+    for item in items:
+        if item:
+            if item.get("score", 0) > threshold:
+                if mode == "fast":
+                    result.append(item)
+                else:
+                    result.append(item)
+    return result
+</textarea>
+          </div>
+
+          <aside class="insights">
+            <div class="tabs">
+              <button class="tab active" data-tab="issues" type="button">Issues</button>
+              <button class="tab" data-tab="ai" type="button">AI Panel</button>
+              <button class="tab" data-tab="history" type="button">History</button>
+            </div>
+            <div id="issuesTab" class="tab-body">
+              <p>Run your first scan to see line-by-line issues here.</p>
+            </div>
+            <div id="aiTab" class="tab-body hidden"></div>
+            <div id="historyTab" class="tab-body hidden"></div>
+          </aside>
+        </section>
+
+        <section class="analytics">
+          <div>
+            <h2>Complexity Graph</h2>
+            <canvas id="complexityChart"></canvas>
+          </div>
+          <div>
+            <h2>Quality Trends</h2>
+            <canvas id="qualityChart"></canvas>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/static/dashboard.js"></script>
+  </body>
+</html>

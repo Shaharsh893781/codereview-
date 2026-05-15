@@ -1,0 +1,43 @@
+from fastapi.testclient import TestClient
+
+from api.main import app
+
+
+client = TestClient(app)
+
+
+def test_health_endpoint():
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+
+
+def test_auth_pages_are_served():
+    auth_response = client.get("/")
+    dashboard_response = client.get("/dashboard")
+
+    assert auth_response.status_code == 200
+    assert "Login" in auth_response.text
+    assert dashboard_response.status_code == 200
+    assert "DASHBOARD" in dashboard_response.text
+
+
+def test_register_and_login_return_jwt_tokens():
+    email = "auth-flow@example.com"
+    register_response = client.post(
+        "/api/auth/register",
+        json={"email": email, "full_name": "Auth Flow", "password": "password123"},
+    )
+    if register_response.status_code == 409:
+        login_response = client.post("/api/auth/login", json={"email": email, "password": "password123"})
+        assert login_response.status_code == 200
+        assert login_response.json()["access_token"]
+        return
+
+    assert register_response.status_code == 200
+    assert register_response.json()["access_token"]
+
+    login_response = client.post("/api/auth/login", json={"email": email, "password": "password123"})
+    assert login_response.status_code == 200
+    assert login_response.json()["access_token"]
