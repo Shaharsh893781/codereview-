@@ -1,1 +1,2 @@
-python-3.11.9
+pydantic==2.9.2
+pydantic-core==2.23.4
