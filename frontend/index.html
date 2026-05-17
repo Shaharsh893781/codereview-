@@ -64,11 +64,11 @@
             Account email
             <input id="resetEmail" type="email" autocomplete="email" required />
           </label>
-          <button id="requestResetBtn" type="button">Get reset token</button>
+          <button id="requestResetBtn" type="button">Get OTP</button>
           <div id="resetFields" class="reset-fields hidden">
             <label>
-              Reset token
-              <input id="resetToken" autocomplete="one-time-code" required />
+              OTP
+              <input id="resetOtp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required />
             </label>
             <label>
               New password

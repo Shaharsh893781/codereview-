@@ -21,11 +21,12 @@ class PasswordResetRequest(BaseModel):
 
 class PasswordResetRequestResult(BaseModel):
     message: str
-    reset_token: str | None = None
+    otp: str | None = None
 
 
 class PasswordResetConfirm(BaseModel):
-    token: str = Field(min_length=16)
+    email: EmailStr
+    otp: str = Field(pattern=r"^\d{6}$")
     password: str = Field(min_length=8, max_length=128)
 
 

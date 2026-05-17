@@ -83,15 +83,15 @@ registerForm.addEventListener("submit", async (event) => {
 });
 
 document.querySelector("#requestResetBtn").addEventListener("click", async () => {
-  setStatus("Creating reset token...");
+  setStatus("Creating OTP...");
   try {
     const data = await postJson("/api/auth/forgot-password", {
       email: document.querySelector("#resetEmail").value.trim(),
     });
-    if (data.reset_token) {
+    if (data.otp) {
       resetFields.classList.remove("hidden");
-      document.querySelector("#resetToken").value = data.reset_token;
-      setStatus("Reset token created. Enter a new password to continue.");
+      document.querySelector("#resetOtp").value = data.otp;
+      setStatus("OTP created. Enter it with your new password to continue.");
       return;
     }
     resetFields.classList.add("hidden");
@@ -106,7 +106,8 @@ forgotForm.addEventListener("submit", async (event) => {
   setStatus("Updating password...");
   try {
     const data = await postJson("/api/auth/reset-password", {
-      token: document.querySelector("#resetToken").value.trim(),
+      email: document.querySelector("#resetEmail").value.trim(),
+      otp: document.querySelector("#resetOtp").value.trim(),
       password: document.querySelector("#newPassword").value,
     });
     completeAuthentication(data);

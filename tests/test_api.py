@@ -55,12 +55,13 @@ def test_forgot_password_resets_user_password():
 
     reset_request = client.post("/api/auth/forgot-password", json={"email": email})
     assert reset_request.status_code == 200
-    reset_token = reset_request.json()["reset_token"]
-    assert reset_token
+    otp = reset_request.json()["otp"]
+    assert otp.isdigit()
+    assert len(otp) == 6
 
     reset_response = client.post(
         "/api/auth/reset-password",
-        json={"token": reset_token, "password": "newpassword123"},
+        json={"email": email, "otp": otp, "password": "newpassword123"},
     )
     assert reset_response.status_code == 200
     assert reset_response.json()["access_token"]

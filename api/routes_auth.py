@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from secrets import token_urlsafe
+from secrets import randbelow
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -11,8 +11,8 @@ from models.user import User
 
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
-password_reset_tokens: dict[str, tuple[str, datetime]] = {}
-RESET_TOKEN_EXPIRE_MINUTES = 15
+password_reset_otps: dict[str, tuple[str, datetime]] = {}
+RESET_OTP_EXPIRE_MINUTES = 10
 
 
 @router.post("/register", response_model=Token)
@@ -36,36 +36,41 @@ def login(payload: UserLogin, db: Session = Depends(get_db)) -> Token:
 
 @router.post("/forgot-password", response_model=PasswordResetRequestResult)
 def forgot_password(payload: PasswordResetRequest, db: Session = Depends(get_db)) -> PasswordResetRequestResult:
-    user = db.query(User).filter(User.email == payload.email.lower()).first()
+    email = payload.email.lower()
+    user = db.query(User).filter(User.email == email).first()
     if not user:
-        return PasswordResetRequestResult(message="If that email exists, a reset token has been created.")
+        return PasswordResetRequestResult(message="If that email exists, an OTP has been created.")
 
-    reset_token = token_urlsafe(32)
-    expires_at = datetime.now(timezone.utc) + timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES)
-    password_reset_tokens[reset_token] = (user.email, expires_at)
+    otp = f"{randbelow(1_000_000):06d}"
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=RESET_OTP_EXPIRE_MINUTES)
+    password_reset_otps[email] = (otp, expires_at)
     return PasswordResetRequestResult(
-        message="Use this reset token to set a new password.",
-        reset_token=reset_token,
+        message="Use this OTP to set a new password.",
+        otp=otp,
     )
 
 
 @router.post("/reset-password", response_model=Token)
 def reset_password(payload: PasswordResetConfirm, db: Session = Depends(get_db)) -> Token:
-    reset_record = password_reset_tokens.get(payload.token)
+    email = payload.email.lower()
+    reset_record = password_reset_otps.get(email)
     if not reset_record:
-        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+        raise HTTPException(status_code=400, detail="Invalid or expired OTP")
 
-    email, expires_at = reset_record
+    expected_otp, expires_at = reset_record
     if datetime.now(timezone.utc) > expires_at:
-        password_reset_tokens.pop(payload.token, None)
-        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+        password_reset_otps.pop(email, None)
+        raise HTTPException(status_code=400, detail="Invalid or expired OTP")
+
+    if payload.otp != expected_otp:
+        raise HTTPException(status_code=400, detail="Invalid or expired OTP")
 
     user = db.query(User).filter(User.email == email).first()
     if not user:
-        password_reset_tokens.pop(payload.token, None)
-        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+        password_reset_otps.pop(email, None)
+        raise HTTPException(status_code=400, detail="Invalid or expired OTP")
 
     user.hashed_password = hash_password(payload.password)
     db.commit()
-    password_reset_tokens.pop(payload.token, None)
+    password_reset_otps.pop(email, None)
     return Token(access_token=create_access_token(user.email))
