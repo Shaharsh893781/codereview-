@@ -19,9 +19,22 @@
         <button id="logoutBtn" class="ghost" type="button">Logout</button>
       </header>
 
-      <section class="dashboard-card">
-        <h1>DASHBOARD</h1>
-        <p>Run AI-powered code review scans from your authenticated workspace.</p>
+      <section class="dashboard-hero">
+        <div>
+          <span class="eyebrow">DASHBOARD / Python static review</span>
+          <h1>Ship cleaner code with focused review signals.</h1>
+          <p>Paste code, scan quality issues, and track maintainability from one developer workspace.</p>
+        </div>
+        <div class="hero-preview" aria-hidden="true">
+          <div class="preview-bar">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <pre><code>def review_code(files):
+    issues = scan(files)
+    return prioritize(issues)</code></pre>
+        </div>
       </section>
 
       <section class="review-dashboard">
@@ -36,27 +49,28 @@
           <div class="editor-panel">
             <div class="panel-title">
               <div>
-                <h2>Code Review Application</h2>
+                <span class="panel-kicker">Workspace</span>
+                <h2>Review Editor</h2>
                 <p>Paste Python code or drop a file, then run the analyzer.</p>
               </div>
-              <button id="analyzeBtn" type="button">Analyze Code</button>
+              <div class="editor-actions">
+                <button id="uploadBtn" class="ghost" type="button">Upload Python File</button>
+                <input id="fileInput" class="file-input" type="file" accept=".py,text/x-python,text/plain" />
+                <button id="analyzeBtn" type="button">Analyze Code</button>
+              </div>
             </div>
-            <div id="dropZone" class="drop-zone">Drop a Python file here</div>
-            <textarea id="codeEditor" spellcheck="false">def BadFunctionName(items, threshold, mode, user, debug, retries):
-    result = []
-    unused_value = 42
-    for item in items:
-        if item:
-            if item.get("score", 0) > threshold:
-                if mode == "fast":
-                    result.append(item)
-                else:
-                    result.append(item)
-    return result
-</textarea>
+            <div id="dropZone" class="drop-zone">
+              <strong>Drop a Python file here</strong>
+              <span>or paste directly into the editor below</span>
+            </div>
+            <textarea id="codeEditor" spellcheck="false"></textarea>
           </div>
 
           <aside class="insights">
+            <div class="insights-heading">
+              <span class="panel-kicker">Signals</span>
+              <h2>Review Findings</h2>
+            </div>
             <div class="tabs">
               <button class="tab active" data-tab="issues" type="button">Issues</button>
               <button class="tab" data-tab="ai" type="button">AI Panel</button>
@@ -72,10 +86,12 @@
 
         <section class="analytics">
           <div>
+            <span class="panel-kicker">Functions</span>
             <h2>Complexity Graph</h2>
             <canvas id="complexityChart"></canvas>
           </div>
           <div>
+            <span class="panel-kicker">Scores</span>
             <h2>Quality Trends</h2>
             <canvas id="qualityChart"></canvas>
           </div>

@@ -22,12 +22,56 @@ async function api(path, options = {}) {
 }
 
 async function analyze() {
-  const result = await api("/api/analyze", {
-    method: "POST",
-    body: JSON.stringify({ code: qs("#codeEditor").value, filename: "dashboard_input.py", language: "python" }),
-  });
-  renderResult(result);
-  await loadHistory();
+  const button = qs("#analyzeBtn");
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = "Analyzing...";
+  try {
+    const result = await api("/api/analyze", {
+      method: "POST",
+      body: JSON.stringify({ code: qs("#codeEditor").value, filename: "dashboard_input.py", language: "python" }),
+    });
+    renderResult(result);
+    await loadHistory();
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
+}
+
+async function uploadPythonFile(file) {
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith(".py")) {
+    throw new Error("Only Python .py files can be uploaded.");
+  }
+
+  const uploadButton = qs("#uploadBtn");
+  const originalText = uploadButton.textContent;
+  uploadButton.disabled = true;
+  uploadButton.textContent = "Uploading...";
+
+  try {
+    qs("#codeEditor").value = await file.text();
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("/api/upload", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Upload failed" }));
+      throw new Error(error.detail || "Upload failed");
+    }
+
+    renderResult(await response.json());
+    await loadHistory();
+  } finally {
+    uploadButton.disabled = false;
+    uploadButton.textContent = originalText;
+  }
 }
 
 function renderResult(result) {
@@ -46,7 +90,7 @@ function renderResult(result) {
 
   qs("#aiTab").innerHTML = result.ai_suggestions.map(item => `
     <article class="issue"><p>${escapeHtml(item)}</p></article>
-  `).join("");
+  `).join("") || "<p>No AI suggestions yet.</p>";
   renderCharts(result);
 }
 
@@ -153,6 +197,14 @@ function escapeHtml(value) {
 }
 
 qs("#analyzeBtn").addEventListener("click", () => analyze().catch(error => alert(error.message)));
+qs("#uploadBtn").addEventListener("click", () => qs("#fileInput").click());
+qs("#fileInput").addEventListener("change", event => {
+  uploadPythonFile(event.target.files[0])
+    .catch(error => alert(error.message))
+    .finally(() => {
+      event.target.value = "";
+    });
+});
 
 document.querySelectorAll(".tab").forEach(tab => tab.addEventListener("click", () => {
   document.querySelectorAll(".tab").forEach(item => item.classList.remove("active"));
@@ -171,7 +223,7 @@ dropZone.addEventListener("drop", async event => {
   event.preventDefault();
   dropZone.classList.remove("dragging");
   const file = event.dataTransfer.files[0];
-  if (file) qs("#codeEditor").value = await file.text();
+  uploadPythonFile(file).catch(error => alert(error.message));
 });
 
 loadHistory().catch(() => {
