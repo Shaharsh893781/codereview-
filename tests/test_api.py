@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
+from api import routes_auth
 from api.main import app
 
 
@@ -53,9 +54,22 @@ def test_forgot_password_resets_user_password():
     )
     assert register_response.status_code == 200
 
-    reset_request = client.post("/api/auth/forgot-password", json={"email": email})
+    sent_otps = {}
+
+    def fake_send_otp(recipient: str, otp: str) -> None:
+        sent_otps[recipient] = otp
+
+    original_sender = routes_auth.email_service.send_password_reset_otp
+    try:
+        routes_auth.email_service.send_password_reset_otp = fake_send_otp
+        reset_request = client.post("/api/auth/forgot-password", json={"email": email})
+    finally:
+        routes_auth.email_service.send_password_reset_otp = original_sender
+
     assert reset_request.status_code == 200
-    otp = reset_request.json()["otp"]
+    assert reset_request.json()["message"] == "OTP sent to your Gmail address."
+    assert reset_request.json()["otp"] is None
+    otp = sent_otps[email]
     assert otp.isdigit()
     assert len(otp) == 6
 
