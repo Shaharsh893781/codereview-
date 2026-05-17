@@ -24,6 +24,7 @@
         <div class="auth-tabs">
           <button id="showLogin" class="tab active" type="button">Login</button>
           <button id="showRegister" class="tab" type="button">Register</button>
+          <button id="showForgot" class="tab" type="button">Reset</button>
         </div>
 
         <form id="loginForm" class="auth-form">
@@ -37,6 +38,7 @@
             <input id="loginPassword" type="password" autocomplete="current-password" required />
           </label>
           <button type="submit">Login</button>
+          <button id="forgotPasswordLink" class="text-button" type="button">Forgot password?</button>
         </form>
 
         <form id="registerForm" class="auth-form hidden">
@@ -54,6 +56,26 @@
             <input id="registerPassword" type="password" autocomplete="new-password" required minlength="8" />
           </label>
           <button type="submit">Create account</button>
+        </form>
+
+        <form id="forgotForm" class="auth-form hidden">
+          <h2>Reset password</h2>
+          <label>
+            Account email
+            <input id="resetEmail" type="email" autocomplete="email" required />
+          </label>
+          <button id="requestResetBtn" type="button">Get reset token</button>
+          <div id="resetFields" class="reset-fields hidden">
+            <label>
+              Reset token
+              <input id="resetToken" autocomplete="one-time-code" required />
+            </label>
+            <label>
+              New password
+              <input id="newPassword" type="password" autocomplete="new-password" required minlength="8" />
+            </label>
+            <button type="submit">Set new password</button>
+          </div>
         </form>
 
         <p id="authStatus" class="auth-status" role="status"></p>

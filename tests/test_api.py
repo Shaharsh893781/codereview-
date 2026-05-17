@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from fastapi.testclient import TestClient
 
 from api.main import app
@@ -41,3 +43,31 @@ def test_register_and_login_return_jwt_tokens():
     login_response = client.post("/api/auth/login", json={"email": email, "password": "password123"})
     assert login_response.status_code == 200
     assert login_response.json()["access_token"]
+
+
+def test_forgot_password_resets_user_password():
+    email = f"reset-{uuid4().hex}@example.com"
+    register_response = client.post(
+        "/api/auth/register",
+        json={"email": email, "full_name": "Reset Flow", "password": "password123"},
+    )
+    assert register_response.status_code == 200
+
+    reset_request = client.post("/api/auth/forgot-password", json={"email": email})
+    assert reset_request.status_code == 200
+    reset_token = reset_request.json()["reset_token"]
+    assert reset_token
+
+    reset_response = client.post(
+        "/api/auth/reset-password",
+        json={"token": reset_token, "password": "newpassword123"},
+    )
+    assert reset_response.status_code == 200
+    assert reset_response.json()["access_token"]
+
+    old_login = client.post("/api/auth/login", json={"email": email, "password": "password123"})
+    assert old_login.status_code == 401
+
+    new_login = client.post("/api/auth/login", json={"email": email, "password": "newpassword123"})
+    assert new_login.status_code == 200
+    assert new_login.json()["access_token"]

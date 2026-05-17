@@ -15,6 +15,20 @@ class UserLogin(BaseModel):
     password: str
 
 
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordResetRequestResult(BaseModel):
+    message: str
+    reset_token: str | None = None
+
+
+class PasswordResetConfirm(BaseModel):
+    token: str = Field(min_length=16)
+    password: str = Field(min_length=8, max_length=128)
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"

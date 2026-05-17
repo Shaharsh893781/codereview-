@@ -1,9 +1,12 @@
 const token = localStorage.getItem("token");
 const loginForm = document.querySelector("#loginForm");
 const registerForm = document.querySelector("#registerForm");
+const forgotForm = document.querySelector("#forgotForm");
 const showLogin = document.querySelector("#showLogin");
 const showRegister = document.querySelector("#showRegister");
+const showForgot = document.querySelector("#showForgot");
 const authStatus = document.querySelector("#authStatus");
+const resetFields = document.querySelector("#resetFields");
 
 if (token) {
   window.location.href = "/dashboard";
@@ -16,10 +19,14 @@ function setStatus(message, isError = false) {
 
 function showForm(mode) {
   const isLogin = mode === "login";
+  const isRegister = mode === "register";
+  const isForgot = mode === "forgot";
   loginForm.classList.toggle("hidden", !isLogin);
-  registerForm.classList.toggle("hidden", isLogin);
+  registerForm.classList.toggle("hidden", !isRegister);
+  forgotForm.classList.toggle("hidden", !isForgot);
   showLogin.classList.toggle("active", isLogin);
-  showRegister.classList.toggle("active", !isLogin);
+  showRegister.classList.toggle("active", isRegister);
+  showForgot.classList.toggle("active", isForgot);
   setStatus("");
 }
 
@@ -43,6 +50,8 @@ function completeAuthentication(data) {
 
 showLogin.addEventListener("click", () => showForm("login"));
 showRegister.addEventListener("click", () => showForm("register"));
+showForgot.addEventListener("click", () => showForm("forgot"));
+document.querySelector("#forgotPasswordLink").addEventListener("click", () => showForm("forgot"));
 
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -66,6 +75,39 @@ registerForm.addEventListener("submit", async (event) => {
       full_name: document.querySelector("#registerName").value.trim(),
       email: document.querySelector("#registerEmail").value.trim(),
       password: document.querySelector("#registerPassword").value,
+    });
+    completeAuthentication(data);
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+});
+
+document.querySelector("#requestResetBtn").addEventListener("click", async () => {
+  setStatus("Creating reset token...");
+  try {
+    const data = await postJson("/api/auth/forgot-password", {
+      email: document.querySelector("#resetEmail").value.trim(),
+    });
+    if (data.reset_token) {
+      resetFields.classList.remove("hidden");
+      document.querySelector("#resetToken").value = data.reset_token;
+      setStatus("Reset token created. Enter a new password to continue.");
+      return;
+    }
+    resetFields.classList.add("hidden");
+    setStatus(data.message);
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+});
+
+forgotForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  setStatus("Updating password...");
+  try {
+    const data = await postJson("/api/auth/reset-password", {
+      token: document.querySelector("#resetToken").value.trim(),
+      password: document.querySelector("#newPassword").value,
     });
     completeAuthentication(data);
   } catch (error) {
