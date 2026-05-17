@@ -39,7 +39,7 @@ def forgot_password(payload: PasswordResetRequest, db: Session = Depends(get_db)
     email = payload.email.lower()
     user = db.query(User).filter(User.email == email).first()
     if not user:
-        return PasswordResetRequestResult(message="If that email exists, an OTP has been created.")
+        raise HTTPException(status_code=404, detail="No account found for this email. Please register first.")
 
     otp = f"{randbelow(1_000_000):06d}"
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=RESET_OTP_EXPIRE_MINUTES)

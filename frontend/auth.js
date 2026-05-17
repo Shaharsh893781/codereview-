@@ -7,6 +7,7 @@ const showRegister = document.querySelector("#showRegister");
 const showForgot = document.querySelector("#showForgot");
 const authStatus = document.querySelector("#authStatus");
 const resetFields = document.querySelector("#resetFields");
+const otpPreview = document.querySelector("#otpPreview");
 
 if (token) {
   window.location.href = "/dashboard";
@@ -27,6 +28,10 @@ function showForm(mode) {
   showLogin.classList.toggle("active", isLogin);
   showRegister.classList.toggle("active", isRegister);
   showForgot.classList.toggle("active", isForgot);
+  if (!isForgot) {
+    resetFields.classList.add("hidden");
+    otpPreview.classList.add("hidden");
+  }
   setStatus("");
 }
 
@@ -90,13 +95,18 @@ document.querySelector("#requestResetBtn").addEventListener("click", async () =>
     });
     if (data.otp) {
       resetFields.classList.remove("hidden");
+      otpPreview.classList.remove("hidden");
+      otpPreview.textContent = `Your OTP is ${data.otp}`;
       document.querySelector("#resetOtp").value = data.otp;
       setStatus("OTP created. Enter it with your new password to continue.");
       return;
     }
     resetFields.classList.add("hidden");
+    otpPreview.classList.add("hidden");
     setStatus(data.message);
   } catch (error) {
+    resetFields.classList.add("hidden");
+    otpPreview.classList.add("hidden");
     setStatus(error.message, true);
   }
 });

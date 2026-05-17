@@ -72,3 +72,10 @@ def test_forgot_password_resets_user_password():
     new_login = client.post("/api/auth/login", json={"email": email, "password": "newpassword123"})
     assert new_login.status_code == 200
     assert new_login.json()["access_token"]
+
+
+def test_forgot_password_requires_existing_account():
+    response = client.post("/api/auth/forgot-password", json={"email": f"missing-{uuid4().hex}@example.com"})
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "No account found for this email. Please register first."
