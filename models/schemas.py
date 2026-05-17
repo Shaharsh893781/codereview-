@@ -15,21 +15,6 @@ class UserLogin(BaseModel):
     password: str
 
 
-class PasswordResetRequest(BaseModel):
-    email: EmailStr
-
-
-class PasswordResetRequestResult(BaseModel):
-    message: str
-    otp: str | None = None
-
-
-class PasswordResetConfirm(BaseModel):
-    email: EmailStr
-    otp: str = Field(pattern=r"^\d{6}$")
-    password: str = Field(min_length=8, max_length=128)
-
-
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"

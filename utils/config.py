@@ -10,10 +10,6 @@ class Settings:
     algorithm = "HS256"
     access_token_expire_minutes = 60 * 8
     openai_api_key = os.getenv("OPENAI_API_KEY", "")
-    gmail_user = os.getenv("GMAIL_USER", "")
-    gmail_app_password = os.getenv("GMAIL_APP_PASSWORD", "")
-    smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com")
-    smtp_port = int(os.getenv("SMTP_PORT", "587"))
     report_dir = Path("reports/generated")
     rate_limit_per_minute = int(os.getenv("RATE_LIMIT_PER_MINUTE", "80"))
 

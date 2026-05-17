@@ -165,7 +165,7 @@ p {
 
 .auth-tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-bottom: 24px;
 }
@@ -187,26 +187,6 @@ p {
 
 .auth-status.error {
   color: var(--danger);
-}
-
-.text-button {
-  background: transparent;
-  border: 0;
-  color: var(--accent);
-  justify-self: start;
-  padding: 0;
-}
-
-.text-button:hover {
-  background: transparent;
-  box-shadow: none;
-  color: var(--accent-strong);
-  transform: none;
-}
-
-.reset-fields {
-  display: grid;
-  gap: 16px;
 }
 
 .hidden {
